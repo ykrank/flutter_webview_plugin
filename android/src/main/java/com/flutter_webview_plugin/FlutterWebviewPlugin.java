@@ -31,6 +31,7 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
     private WebviewManager webViewManager;
     private Context context;
     static MethodChannel channel;
+    private static boolean debug = false;
     private static final String CHANNEL_NAME = "flutter_webview_plugin";
     private static final String JS_CHANNEL_NAMES_FIELD = "javascriptChannelNames";
 
@@ -41,13 +42,12 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
             registrar.addActivityResultListener(instance);
             channel.setMethodCallHandler(instance);
         }
-        WebViewCacheInterceptorInst.getInstance().
-                init(new WebViewCacheInterceptor.Builder(registrar.context()));
     }
 
     FlutterWebviewPlugin(Activity activity, Context context) {
         this.activity = activity;
         this.context = context;
+        initWebViewCache();
     }
 
     @Override
@@ -104,6 +104,11 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
         }
     }
 
+    private void initWebViewCache() {
+        WebViewCacheInterceptorInst.getInstance().
+                init(new WebViewCacheInterceptor.Builder(context).setDebug(debug));
+    }
+
     private void cleanCache(MethodChannel.Result result) {
         webViewManager.cleanCache();
         WebStorage.getInstance().deleteAllData();
@@ -132,6 +137,11 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
         boolean geolocationEnabled = call.argument("geolocationEnabled");
         boolean debuggingEnabled = call.argument("debuggingEnabled");
         boolean ignoreSSLErrors = call.argument("ignoreSSLErrors");
+
+        if (debuggingEnabled != debug) {
+            debug = debuggingEnabled;
+            initWebViewCache();
+        }
 
         if (webViewManager == null || webViewManager.closed == true) {
             Map<String, Object> arguments = (Map<String, Object>) call.arguments;

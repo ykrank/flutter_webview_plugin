@@ -1,31 +1,25 @@
 package com.flutter_webview_plugin;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.AttributeSet;
+import android.webkit.WebView;
 
-import com.ryan.github.view.FastWebView;
-import com.ryan.github.view.config.FastCacheMode;
+import ren.yale.android.cachewebviewlib.WebViewCacheInterceptorInst;
 
-public class ObservableWebView extends FastWebView {
+public class ObservableWebView extends WebView {
     private OnScrollChangedCallback mOnScrollChangedCallback;
 
     public ObservableWebView(final Context context) {
         super(context);
-        initFastCache(context);
     }
 
     public ObservableWebView(final Context context, final AttributeSet attrs) {
         super(context, attrs);
-        initFastCache(context);
     }
 
     public ObservableWebView(final Context context, final AttributeSet attrs, final int defStyle) {
         super(context, attrs, defStyle);
-        initFastCache(context);
-    }
-
-    private void initFastCache(Context context) {
-        setCacheMode(FastCacheMode.FORCE);
     }
 
     @Override
@@ -47,5 +41,14 @@ public class ObservableWebView extends FastWebView {
      */
     public static interface OnScrollChangedCallback {
         public void onScroll(int l, int t, int oldl, int oldt);
+    }
+
+    @Override
+    public void loadUrl(String url) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            super.loadUrl(url);
+        } else {
+            WebViewCacheInterceptorInst.getInstance().loadUrl(this, url);
+        }
     }
 }

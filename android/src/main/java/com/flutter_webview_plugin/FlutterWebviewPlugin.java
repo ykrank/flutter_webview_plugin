@@ -5,12 +5,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
+import android.os.Build;
 import android.view.Display;
-import android.webkit.WebStorage;
-import android.widget.FrameLayout;
 import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
-import android.os.Build;
+import android.webkit.WebStorage;
+import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +20,8 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.PluginRegistry;
+import ren.yale.android.cachewebviewlib.WebViewCacheInterceptor;
+import ren.yale.android.cachewebviewlib.WebViewCacheInterceptorInst;
 
 /**
  * FlutterWebviewPlugin
@@ -39,6 +41,8 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
             registrar.addActivityResultListener(instance);
             channel.setMethodCallHandler(instance);
         }
+        WebViewCacheInterceptorInst.getInstance().
+                init(new WebViewCacheInterceptor.Builder(registrar.context()));
     }
 
     FlutterWebviewPlugin(Activity activity, Context context) {
@@ -226,6 +230,7 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
 
     /**
      * Checks if can navigate forward
+     *
      * @param result
      */
     private void canGoForward(MethodChannel.Result result) {

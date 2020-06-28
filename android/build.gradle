@@ -55,7 +55,7 @@ android {
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
 
-    implementation "com.ryan.github:fastwebview:1.1.1"
+    implementation 'ren.yale.android:cachewebviewlib:2.1.8'
 
 	testImplementation 'junit:junit:4.12'
     testImplementation 'androidx.test:core:1.2.0'

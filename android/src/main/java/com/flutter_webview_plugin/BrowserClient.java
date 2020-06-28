@@ -8,10 +8,14 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.annotation.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import ren.yale.android.cachewebviewlib.WebViewCacheInterceptorInst;
 
 /**
  * Created by lejard_h on 20/12/2017.
@@ -73,7 +77,11 @@ public class BrowserClient extends WebViewClient {
         data.put("type", isInvalid ? "abortLoad" : "shouldStart");
 
         FlutterWebviewPlugin.channel.invokeMethod("onState", data);
-        return isInvalid;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return isInvalid;
+        }
+        return true;
     }
 
     @Override
@@ -86,7 +94,32 @@ public class BrowserClient extends WebViewClient {
         data.put("type", isInvalid ? "abortLoad" : "shouldStart");
 
         FlutterWebviewPlugin.channel.invokeMethod("onState", data);
-        return isInvalid;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return isInvalid;
+        }
+        return true;
+    }
+
+    @Nullable
+    @Override
+    public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+        boolean isInvalid = checkInvalidUrl(url);
+        if (isInvalid) {
+            return null;
+        }
+        return WebViewCacheInterceptorInst.getInstance().interceptRequest(url);
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @Nullable
+    @Override
+    public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+        boolean isInvalid = checkInvalidUrl(request.getUrl().toString());
+        if (isInvalid) {
+            return null;
+        }
+        return WebViewCacheInterceptorInst.getInstance().interceptRequest(request);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
